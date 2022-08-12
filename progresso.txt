@@ -1,0 +1,174 @@
+
+#                [parei em: (seção_04 -> 67) - Volumes : Bind Mount ]
+
+## SEÇÃO_01 -> Introdução
+    
+    - Benefícios de usar DOCKER:
+        . mais velocidade na configuração do ambiente de DEV
+        . mais performance que uma VM
+        . isolamento de ambientes evitando conflitos
+        . compartilhar o mesmo ambiente para todos os DEVs evitando divergências
+
+
+## SEÇÃO_02 -> Trabalhando com Containers
+
+    - O que são containers:
+        . Um pacote de código que pode executar uma ação, por exemplo:
+                rodar uma aplicação Node.js, PHP etc.
+        . Containers utilizam imagens para poderem ser executados.
+        . Múltiplos containers podem rodar juntos, exemplo:
+                um pra PHP e outro pra Mysql;
+    
+    - Container x Imagem:
+
+        . Imagem é o projeto que será executado pelo Container. Todas as instruções estarão declaradas nela.
+        . Container é o Docker rodando alguma imagem, consequentemente executando algum código proposto por ela.
+        . O fluxo é: programamos uma imagem e a executamos por meio de um Container.
+    
+    - Container x VM:
+
+        . container não possui sistema operacional, seu tamanho é de alguns Mbs.
+        . VM possui sistema operacional próprio, tamanho de Gbs, pode executar diversas funções ao mesmo tempo
+        . containers gastam menos recursos para serem executados, por causa do seu uso específico.
+        . VMs gastam mais recursos, porém podem exercer mais funções.
+
+
+    - Lista de comandos:
+        
+        . "docker run NOMEIMAGEM"        -> roda um container com base na imagem, se não tiver instalada ele faz o download.
+        . "docker run -it NOMEIMAGEM"        -> roda um container com base na imagem informada e abre um terminal pra interagir com ela.
+        . "docker ps"        -> lista os CONTAINERS que estão em execução.
+        . "docker run -d NOMEIMAGEM"        -> roda o container em background (deixando o terminal livre pra uso)
+        . "docker run -d -p portapc:portacontainer NOMEIMAGEM"        -> roda o container em background (deixando o terminal livre pra uso)
+                ex: 3000:80
+        . a flag --name antes do NOMEIMAGEM permite dar um nome a um CONTAINER
+
+    - Expondo porta de container:
+        
+        . Os containers não tem conexão com nada de fora deles
+        . É necessário expor portas, a flag -p 80:80 faz o container ser acessível no browser
+    
+    - Reiniciando containers desligados
+
+        . "docker start IDdoConteiner"  -> reinica um conteiner com todos os comandos que foram utilizados para inciar da primeira vez
+
+    - Acessando logs de um container
+
+        . "docker logs NomeOuIdContainer"   -> mostra os logs do container. a flag -f (de follow) põe o terminal em modo log
+                pra continuar mostrando logs a cada ação.
+
+    - Removendo containers
+
+        . "docker -rm IDdoConteiner"        -> Exclui um container da máquina, a flag (-f) no final da instrução
+                faz com que seja removido caso esteja em execução.
+
+
+## SEÇÃO_03 -> Criando imagens e avançando com containers
+
+    - O que são Imagens:
+
+        . São originadas de arquivos que programamos para que o Docker crie uma ESTRUTURA que execute determinadas
+                ações em CONTAINERS.
+        . Elas contém informações como: imagens base, diretório base, comandos a serem executados, porta da aplicação etc.
+        . Ao rodar um container baseado na imagem, as instruções serão executadas em camadas.
+
+    - Criando uma imagem:
+
+        . precisamos criar um arquivo Dockerfile em uma pasta que ficará o projeto.
+        . nele criaremos instruções para poder ser executado.
+        . FROM: imagem base
+        . WORKDIR: diretório da aplicação
+        . EXPOSE: porta da aplicação
+        . COPY: quais arquivos precisam ser copiados
+        . rodar comando:
+                "docker build -t php74 ."  -> o ponto indica que o Dockerfile está no diretório do terminal.
+
+    - Alterando uma imagem:
+
+        . Sempre que alterarmos o código de uma imagem vamos precisar fazer o build novamente.
+        . Para o Docker é como se fosse uma imagem completamente nova.
+        . Após fazer o build vamos executá-la pelo novo id único que será gerado.
+
+    - Camada das imagens:
+
+        . Cada instrução no Dockerfile representa uma camada (layer)
+        . Quando algo é atualizado apenas as layers DEPOIS da linha alterada são REFEITAS no build.
+        . o Resto permanece em cache, tornando o build mais RÁPIDO.
+
+    - Nomeando Imagens criadas:
+
+        . "docker tag idDaImagem novoNome"  -> cria o nome indicando ser a versão latest da imagem.
+        . "docker tag idDaImagem novoNome:tag"   -> cria o nome indicando uma tag de versão da imagem
+
+    - Nomeando Imagens durante BUILD:
+
+        . Utilizar a flag -t
+        . É possível inserir o nome e a tag, na sintaxe: (nome:tag)
+
+    - Removendo Imagens:
+
+        . "docker rmi IMAGEM"  -> remove uma imagem. a flag -f remove a imagem que estiver em uso.
+
+    - Copiando arquivos do container:
+
+        . Pode ser utilizado para copiar um arquivo de um diretório para um container
+            ou vice-versa
+
+    - Inspecionando container
+
+        . "docker inspect NomeOuIdContainer"     -> serve para verificar status e configs de build do Container
+    
+    - Verificando processamento do Docker
+
+        . "docker stats"        -> mostra o uso de memória e CPU dos containers em execução.
+
+    - Autenticação no Docker Hub via terminal
+
+        . "docker login"        -> pedirá login e senha pra autenticar.
+        . "docker logout"       -> encerra a sessão.
+
+    -   Criando repositório e enviando imagem
+
+        . criar o repositório pelo site do Hub
+        . construir uma imagem mencionando o repositório e o Dockerfile
+                "   docker build -t devferreira/nodeteste .    "
+        . " docker push devferreira/nodeteste "     -> envia pro repositório criado.
+        . " docker pull devferreira/nodeteste "     -> baixa a imagem do repositório criado.
+
+    - Atualizando imagem criada
+
+        . modifica o necessário no Dockerfile
+        . " docker build -t devferreira/nodeteste:novaversao . "        -> cria uma nova imagem
+                com uma TAG referenciando a versão
+        . " docker push devferreira/nodeteste:novaversao "     -> envia a atualização pro repositório
+
+    - Utilizando imagem do nosso repositório
+
+        . não é necessário estar logado no docker Hub
+        . " docker pull devferreira/nodeteste:novaversao "     -> baixa a imagem na versão escolhida
+        . " docker run --name testando_imagem -p 3000:3000 -d devferreira/nodeteste:novaversao "
+                ->  cria um container da imagem baixada.
+
+## SEÇÃO_04 -> Introduzindo VOLUMES aos nossos containers
+
+    - O que são VOLUMES:
+
+        . Uma forma prática de persistir dados em aplicações e não depender de containers pra isso;
+        . Todo dado criado por um container é salvo nele, quando o container é removido perdemos os dados;
+        . Então precisamos dos volumes para gerenciar os dados e também conseguir fazer BACKUPS de forma simples.
+    
+    - Criando VOLUME durante criação de CONTAINER
+
+        . " docker run -d -p 82:80 --name nomeProContainer -v nomeProVolume:/var/www/html/messages nomeDaImagem  "
+
+    - Bind Mounts:
+        
+        . bind mount é um volume, porém fica em um diretório real que especificamos;
+        . no caso, apontamos um diretório na máquina;
+        . "docker run /diretorio/na/maquina:/diretorio/nocontainer"
+    
+    - Vantagens do  Bind Mount
+
+        . Bind Mount não serve apenas para volumes.
+        . Podemos usar essa técnica para atualização em tempo real do projeto.
+        . Sem ter que fazer o BUILD a cada atualização do mesmo.
