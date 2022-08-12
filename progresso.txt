@@ -1,5 +1,5 @@
 
-#                [parei em: (seção_04 -> 67) - Volumes : Bind Mount ]
+#                [parei em: (seção_05 -> 78) - O que são networks ]
 
 ## SEÇÃO_01 -> Introdução
     
@@ -172,3 +172,19 @@
         . Bind Mount não serve apenas para volumes.
         . Podemos usar essa técnica para atualização em tempo real do projeto.
         . Sem ter que fazer o BUILD a cada atualização do mesmo.
+    
+    - Inspecionando volumes
+
+        . "docker volume inspect nome-do-volume"
+        
+    - Removendo volumes
+
+        . "docker volume rm nome-do-volume"
+
+    - Volumes apenas de leitura
+
+        . Podemos criar um volume que tem apenas permissão de leitura, isso é útil em algumas aplicações.
+        . "docker run -v volume/data:ro"
+        . ro -> é abreviação de Read Only
+
+## SEÇÃO_05 -> Conectando containers com Networks
